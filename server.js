@@ -1,15 +1,14 @@
-import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const DATA_FILE = path.join(__dirname, 'developers.json');
 
 app.use(express.json());
 
+// CORS middleware
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -36,6 +35,7 @@ const writeDevelopers = (developers) => {
   fs.writeFileSync(DATA_FILE, JSON.stringify(developers, null, 2));
 };
 
+// Routes
 app.get('/developers', (req, res) => {
   const developers = readDevelopers();
   res.json(developers.reverse());
