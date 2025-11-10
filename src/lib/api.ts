@@ -10,7 +10,10 @@ export interface Developer {
 
 export type NewDeveloper = Omit<Developer, 'id' | 'created_at'>;
 
-const API_URL = 'http://localhost:3001';
+// Use Render URL in production, localhost in development
+const API_URL = import.meta.env.PROD 
+  ? 'https://developer-directory-backend-gnna.onrender.com'
+  : 'http://localhost:3001';
 
 export async function addDeveloper(developer: NewDeveloper): Promise<{ data: Developer | null; error: string | null }> {
   try {
@@ -19,10 +22,8 @@ export async function addDeveloper(developer: NewDeveloper): Promise<{ data: Dev
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        ...developer,
-        created_at: new Date().toISOString() // Add current timestamp
-      }),
+      body: JSON.stringify(developer),
+      // Remove the created_at from here - your backend now adds it automatically
     });
 
     if (!response.ok) {
