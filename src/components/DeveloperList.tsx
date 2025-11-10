@@ -1,11 +1,13 @@
-import { Users, Code, Briefcase, Calendar } from 'lucide-react';
+import { Users, Code, Briefcase, Calendar, Edit, Trash2 } from 'lucide-react';
 import type { Developer } from '../lib/api';
 
 interface DeveloperListProps {
   developers: Developer[];
+  onEdit: (developer: Developer) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function DeveloperList({ developers }: DeveloperListProps) {
+export default function DeveloperList({ developers, onEdit, onDelete }: DeveloperListProps) {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'Frontend':
@@ -46,13 +48,15 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
         >
           <div className="flex items-start justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-800">{dev.name}</h3>
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(
-                dev.role
-              )}`}
-            >
-              {dev.role}
-            </span>
+            <div className="flex gap-2">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(
+                  dev.role
+                )}`}
+              >
+                {dev.role}
+              </span>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -86,6 +90,24 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
             <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
               <Calendar className="w-4 h-4 text-gray-400" />
               <p className="text-xs text-gray-500">Added {formatDate(dev.created_at)}</p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-3 border-t border-gray-100">
+              <button
+                onClick={() => onEdit(dev)}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
+              >
+                <Edit className="w-4 h-4" />
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(dev.id)}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
             </div>
           </div>
         </div>

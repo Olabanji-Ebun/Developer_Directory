@@ -1,13 +1,20 @@
-import { useState } from 'react';
-import { UserPlus } from 'lucide-react';
-import type { NewDeveloper } from '../lib/api';
+import { useState, useEffect } from 'react';
+import { UserPlus, Save, X } from 'lucide-react';
+import type { NewDeveloper, Developer } from '../lib/api';
 
 interface DeveloperFormProps {
   onSubmit: (developer: NewDeveloper) => Promise<void>;
   isSubmitting: boolean;
+  initialData?: Developer | null;
+  onCancel?: () => void;
 }
 
-export default function DeveloperForm({ onSubmit, isSubmitting }: DeveloperFormProps) {
+export default function DeveloperForm({ 
+  onSubmit, 
+  isSubmitting, 
+  initialData,
+  onCancel 
+}: DeveloperFormProps) {
   const [formData, setFormData] = useState<{
     name: string;
     role: 'Frontend' | 'Backend' | 'Full-Stack';
@@ -21,6 +28,18 @@ export default function DeveloperForm({ onSubmit, isSubmitting }: DeveloperFormP
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Populate form when editing
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name,
+        role: initialData.role,
+        tech_stack: initialData.tech_stack,
+        experience: initialData.experience,
+      });
+    }
+  }, [initialData]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -57,12 +76,15 @@ export default function DeveloperForm({ onSubmit, isSubmitting }: DeveloperFormP
 
     await onSubmit(submitData);
 
-    setFormData({
-      name: '',
-      role: 'Frontend',
-      tech_stack: '',
-      experience: '',
-    });
+    // Only reset form if we're not editing
+    if (!initialData) {
+      setFormData({
+        name: '',
+        role: 'Frontend',
+        tech_stack: '',
+        experience: '',
+      });
+    }
     setErrors({});
   };
 
@@ -75,9 +97,23 @@ export default function DeveloperForm({ onSubmit, isSubmitting }: DeveloperFormP
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <div className="flex items-center gap-2 mb-6">
-        <UserPlus className="w-6 h-6 text-blue-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Add New Developer</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <UserPlus className="w-6 h-6 text-blue-600" />
+          <h2 className="text-2xl font-bold text-gray-800">
+            {initialData ? 'Edit Developer' : 'Add New Developer'}
+          </h2>
+        </div>
+        {initialData && onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -155,13 +191,25 @@ export default function DeveloperForm({ onSubmit, isSubmitting }: DeveloperFormP
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-6 w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        {isSubmitting ? 'Adding...' : 'Add Developer'}
-      </button>
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {initialData ? (
+            <>
+              <Save className="w-5 h-5" />
+              {isSubmitting ? 'Updating...' : 'Update Developer'}
+            </>
+          ) : (
+            <>
+              <UserPlus className="w-5 h-5" />
+              {isSubmitting ? 'Adding...' : 'Add Developer'}
+            </>
+          )}
+        </button>
+      </div>
     </form>
   );
 }
