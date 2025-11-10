@@ -75,8 +75,14 @@ export async function updateDeveloper(id: string, developer: Partial<Developer>)
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return { data: null, error: errorData.error || 'Failed to update developer' };
+      // Try to parse error as JSON, fallback to text if it fails
+      try {
+        const errorData = await response.json();
+        return { data: null, error: errorData.error || 'Failed to update developer' };
+      } catch {
+        const errorText = await response.text();
+        return { data: null, error: `Failed to update developer: ${errorText}` };
+      }
     }
 
     const data = await response.json();
@@ -96,8 +102,14 @@ export async function deleteDeveloper(id: string): Promise<{ error: string | nul
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return { error: errorData.error || 'Failed to delete developer' };
+      // Try to parse error as JSON, fallback to text if it fails
+      try {
+        const errorData = await response.json();
+        return { error: errorData.error || 'Failed to delete developer' };
+      } catch {
+        const errorText = await response.text();
+        return { error: `Failed to delete developer: ${errorText}` };
+      }
     }
 
     return { error: null };

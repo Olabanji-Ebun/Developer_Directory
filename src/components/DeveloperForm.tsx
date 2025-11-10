@@ -191,7 +191,8 @@ export default function DeveloperForm({
         </div>
       </div>
 
-      <div className="flex gap-4">
+      {/* Fixed button section with proper spacing */}
+      <div className="flex gap-4 mt-6">
         <button
           type="submit"
           disabled={isSubmitting}
